@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AgriNexus AI — IoT Smart Agriculture Dashboard</title>
+    <!-- Google Fonts Inter -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="stylesheet" href="../static/css/style.css">
+</head>
+<body>
+    <div class="ambient-glow bg-glow-1"></div>
+    <div class="ambient-glow bg-glow-2"></div>
+
+    <div class="app-container">
+        <!-- HEADER -->
+        <header class="main-header">
+            <div class="header-logo">
+                <i class="fa-solid fa-leaf logo-icon"></i>
+                <div class="logo-text">
+                    <h1>AgriNexus <span class="accent-text">AI</span></h1>
+                    <span class="sub-logo">Planetary Precision Agriculture Gateway</span>
+                </div>
+            </div>
+            <div class="header-status">
+                <div class="status-indicator">
+                    <span class="status-dot online" id="connection-dot"></span>
+                    <span class="status-label" id="connection-label">Gateway Connected</span>
+                </div>
+                <div class="system-time" id="system-time">00:00:00</div>
+            </div>
+        </header>
+
+        <!-- MAIN LAYOUT -->
+        <main class="dashboard-grid">
+            
+            <!-- LEFT PANEL: TELEMETRY READOUTS -->
+            <section class="dashboard-card telemetry-panel">
+                <div class="card-header">
+                    <h2><i class="fa-solid fa-gauge-high"></i> Sensor Telemetry</h2>
+                    <span class="card-badge" id="telemetry-time">Live</span>
+                </div>
+                <div class="gauges-container">
+                    <!-- Soil Moisture -->
+                    <div class="gauge-card" id="gauge-moisture">
+                        <div class="gauge-icon"><i class="fa-solid fa-droplet"></i></div>
+                        <div class="gauge-details">
+                            <h3>Soil Moisture</h3>
+                            <div class="gauge-value"><span id="val-moisture">--</span>%</div>
+                        </div>
+                        <div class="progress-bar-container">
+                            <div class="progress-bar-fill" id="fill-moisture" style="width: 0%"></div>
+                        </div>
+                    </div>
+
+                    <!-- Temperature -->
+                    <div class="gauge-card" id="gauge-temperature">
+                        <div class="gauge-icon"><i class="fa-solid fa-temperature-half"></i></div>
+                        <div class="gauge-details">
+                            <h3>Ambient Temp</h3>
+                            <div class="gauge-value"><span id="val-temperature">--</span>°C</div>
+                        </div>
+                        <div class="progress-bar-container">
+                            <div class="progress-bar-fill" id="fill-temperature" style="width: 0%"></div>
+                        </div>
+                    </div>
+
+                    <!-- Humidity -->
+                    <div class="gauge-card" id="gauge-humidity">
+                        <div class="gauge-icon"><i class="fa-solid fa-wind"></i></div>
+                        <div class="gauge-details">
+                            <h3>Air Humidity</h3>
+                            <div class="gauge-value"><span id="val-humidity">--</span>%</div>
+                        </div>
+                        <div class="progress-bar-container">
+                            <div class="progress-bar-fill" id="fill-humidity" style="width: 0%"></div>
+                        </div>
+                    </div>
+
+                    <!-- Light Intensity -->
+                    <div class="gauge-card" id="gauge-light">
+                        <div class="gauge-icon"><i class="fa-solid fa-sun"></i></div>
+                        <div class="gauge-details">
+                            <h3>Solar Radiation</h3>
+                            <div class="gauge-value"><span id="val-light">--</span> Lux</div>
+                        </div>
+                        <div class="progress-bar-container">
+                            <div class="progress-bar-fill" id="fill-light" style="width: 0%"></div>
+                        </div>
+                    </div>
+
+                    <!-- Reservoir Water Level -->
+                    <div class="gauge-card" id="gauge-water">
+                        <div class="gauge-icon"><i class="fa-solid fa-water"></i></div>
+                        <div class="gauge-details">
+                            <h3>Reservoir Level</h3>
+                            <div class="gauge-value"><span id="val-water">--</span>%</div>
+                        </div>
+                        <div class="progress-bar-container">
+                            <div class="progress-bar-fill" id="fill-water" style="width: 0%"></div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- CENTER PANEL: TIMELINE CHART -->
+            <section class="dashboard-card chart-panel">
+                <div class="card-header">
+                    <h2><i class="fa-solid fa-chart-line"></i> Environmental Timelines</h2>
+                    <div class="view-toggles" style="display: flex; gap: 8px;">
+                        <button class="btn-clear active" id="btn-view-local">Local</button>
+                        <button class="btn-clear" id="btn-view-cloud">Cloud (ThingSpeak)</button>
+                    </div>
+                    <div class="pump-indicator-badge" id="pump-indicator">
+                        <i class="fa-solid fa-plug-circle-exclamation"></i> Pump: <span id="pump-status-label">OFF</span>
+                    </div>
+                </div>
+                <div class="chart-wrapper" style="position: relative;">
+                    <div id="local-chart-view" style="width: 100%; height: 100%;">
+                        <canvas id="telemetryChart"></canvas>
+                    </div>
+                    <div id="cloud-chart-view" style="display: none; width: 100%; height: 100%; overflow-y: auto;">
+                        <div class="thingspeak-grid" style="display: grid; grid-template-columns: 1fr; gap: 16px; padding: 10px 0;">
+                            <iframe width="100%" height="250" style="border: 1px solid var(--border-color); border-radius: 8px;" src="https://thingspeak.com/channels/757665/charts/1?bgcolor=%230d1121&color=%236366f1&dynamic=true&results=30&title=Temperature&type=line"></iframe>
+                            <iframe width="100%" height="250" style="border: 1px solid var(--border-color); border-radius: 8px;" src="https://thingspeak.com/channels/757665/charts/2?bgcolor=%230d1121&color=%2310b981&dynamic=true&results=30&title=Humidity&type=line"></iframe>
+                            <iframe width="100%" height="250" style="border: 1px solid var(--border-color); border-radius: 8px;" src="https://thingspeak.com/channels/757665/charts/3?bgcolor=%230d1121&color=%233b82f6&dynamic=true&results=30&title=Soil+Moisture&type=line"></iframe>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- RIGHT PANEL: CONTROL & SIMULATION PANEL -->
+            <section class="dashboard-card control-panel">
+                <div class="card-header">
+                    <h2><i class="fa-solid fa-sliders"></i> Edge Command & Simulator</h2>
+                </div>
+                
+                <!-- AUTO RULES TRIGGER SETTINGS -->
+                <div class="control-section">
+                    <h3><i class="fa-solid fa-gears"></i> Threshold Settings</h3>
+                    <div class="slider-group">
+                        <div class="slider-header">
+                            <label>Soil Irrigation Trigger</label>
+                            <span class="slider-val"><span id="lbl-soil-threshold">30</span>%</span>
+                        </div>
+                        <input type="range" id="input-soil-threshold" min="10" max="80" value="30" class="premium-slider">
+                    </div>
+                    <div class="slider-group">
+                        <div class="slider-header">
+                            <label>Water Safety Cutoff</label>
+                            <span class="slider-val"><span id="lbl-water-threshold">15</span>%</span>
+                        </div>
+                        <input type="range" id="input-water-threshold" min="5" max="40" value="15" class="premium-slider">
+                    </div>
+                    <button class="btn-primary" id="btn-save-thresholds">Apply Thresholds</button>
+                </div>
+
+                <!-- OPERATOR MANUAL OVERRIDES -->
+                <div class="control-section">
+                    <h3><i class="fa-solid fa-user-gear"></i> Manual Control</h3>
+                    <div class="toggle-container">
+                        <span>Automation Loop (Auto Mode)</span>
+                        <label class="switch">
+                            <input type="checkbox" id="toggle-auto" checked>
+                            <span class="slider round"></span>
+                        </label>
+                    </div>
+                    <div class="toggle-container">
+                        <span>Irrigation Pump Relay</span>
+                        <label class="switch">
+                            <input type="checkbox" id="toggle-pump" disabled>
+                            <span class="slider round"></span>
+                        </label>
+                    </div>
+                </div>
+
+                <!-- SIMULATED ENVIRONMENT SLIDERS -->
+                <div class="control-section sim-section">
+                    <h3><i class="fa-solid fa-flask"></i> Physics Simulator Overrides</h3>
+                    <p class="sim-note">Drag sliders to inject virtual agricultural anomalies:</p>
+                    
+                    <div class="slider-group">
+                        <div class="slider-header">
+                            <label>Force Soil Moisture</label>
+                            <span class="slider-val"><span id="lbl-sim-soil">--</span>%</span>
+                        </div>
+                        <input type="range" id="sim-soil" min="0" max="100" value="45" class="sim-slider">
+                    </div>
+
+                    <div class="slider-group">
+                        <div class="slider-header">
+                            <label>Force Temperature</label>
+                            <span class="slider-val"><span id="lbl-sim-temp">--</span>°C</span>
+                        </div>
+                        <input type="range" id="sim-temp" min="5" max="48" value="25" class="sim-slider">
+                    </div>
+
+                    <div class="slider-group">
+                        <div class="slider-header">
+                            <label>Force Reservoir Level</label>
+                            <span class="slider-val"><span id="lbl-sim-water">--</span>%</span>
+                        </div>
+                        <input type="range" id="sim-water" min="0" max="100" value="80" class="sim-slider">
+                    </div>
+
+                    <div class="slider-group">
+                        <div class="slider-header">
+                            <label>Force Solar Radiation</label>
+                            <span class="slider-val"><span id="lbl-sim-light">--</span> Lux</span>
+                        </div>
+                        <input type="range" id="sim-light" min="0" max="1500" value="500" class="sim-slider">
+                    </div>
+                </div>
+            </section>
+        </main>
+
+        <!-- FOOTER: ALERTS ENGINE -->
+        <footer class="console-card">
+            <div class="console-header">
+                <h3><i class="fa-solid fa-terminal"></i> Sovereign Alert Engine & Logs</h3>
+                <button class="btn-clear" id="btn-clear-logs">Clear Screen</button>
+            </div>
+            <div class="console-body" id="console-logs">
+                <div class="console-line system-line">[SYSTEM] 00:00:00 — System initialized. Establishing secure telemetry socket connection...</div>
+            </div>
+        </footer>
+    </div>
+
+    <!-- Audio Elements for Alerts -->
+    <audio id="audio-alarm" src="https://assets.mixkit.co/active_storage/sfx/993/993-84.wav" preload="auto"></audio>
+    <audio id="audio-click" src="https://assets.mixkit.co/active_storage/sfx/2568/2568-84.wav" preload="auto"></audio>
+
+    <script src="../static/js/app.js"></script>
+</body>
+</html>

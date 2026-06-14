@@ -1,0 +1,1248 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AgriNexus AI — IoT Smart Agriculture Standalone Dashboard</title>
+    <!-- Google Fonts Inter -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        /* ==========================================================================
+           AgriNexus Premium Glassmorphic Design System
+           ========================================================================== */
+        :root {
+            --bg-base: #070913;
+            --bg-surface: rgba(13, 17, 33, 0.7);
+            --border-color: rgba(255, 255, 255, 0.08);
+            --border-hover: rgba(99, 102, 241, 0.3);
+            
+            --primary: #6366f1;
+            --primary-glow: rgba(99, 102, 241, 0.15);
+            --accent: #10b981;
+            --accent-glow: rgba(16, 185, 129, 0.15);
+            --warning: #f59e0b;
+            --danger: #ef4444;
+            
+            --text-main: #f3f4f6;
+            --text-muted: #9ca3af;
+            --text-dark: #4b5563;
+            
+            --font-sans: 'Inter', sans-serif;
+            --font-mono: 'JetBrains Mono', monospace;
+            
+            --shadow-sm: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.3), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+            --shadow-glow: 0 0 20px rgba(99, 102, 241, 0.2);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            background-color: var(--bg-base);
+            color: var(--text-main);
+            font-family: var(--font-sans);
+            min-height: 100vh;
+            overflow-x: hidden;
+            position: relative;
+            padding: 24px;
+        }
+
+        .ambient-glow {
+            position: absolute;
+            border-radius: 50%;
+            filter: blur(140px);
+            z-index: -1;
+            opacity: 0.25;
+            pointer-events: none;
+        }
+
+        .bg-glow-1 {
+            width: 450px;
+            height: 450px;
+            background: var(--primary);
+            top: -10%;
+            right: -10%;
+        }
+
+        .bg-glow-2 {
+            width: 600px;
+            height: 600px;
+            background: var(--accent);
+            bottom: -15%;
+            left: -10%;
+        }
+
+        .app-container {
+            max-width: 1600px;
+            margin: 0 auto;
+            display: flex;
+            flex-direction: column;
+            gap: 24px;
+        }
+
+        .main-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px 24px;
+            background: var(--bg-surface);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            box-shadow: var(--shadow-sm);
+        }
+
+        .header-logo {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .logo-icon {
+            font-size: 32px;
+            color: var(--accent);
+            filter: drop-shadow(0 0 8px var(--accent-glow));
+            animation: pulse 3s infinite ease-in-out;
+        }
+
+        .logo-text h1 {
+            font-size: 24px;
+            font-weight: 700;
+            letter-spacing: -0.5px;
+        }
+
+        .accent-text {
+            color: var(--primary);
+            text-shadow: 0 0 10px var(--primary-glow);
+        }
+
+        .sub-logo {
+            font-size: 11px;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+        }
+
+        .header-status {
+            display: flex;
+            align-items: center;
+            gap: 24px;
+        }
+
+        .status-indicator {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            background: rgba(255, 255, 255, 0.04);
+            padding: 8px 14px;
+            border-radius: 20px;
+            border: 1px solid var(--border-color);
+        }
+
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            position: relative;
+        }
+
+        .status-dot.online {
+            background-color: var(--accent);
+            box-shadow: 0 0 10px var(--accent);
+        }
+
+        .status-label {
+            font-size: 13px;
+            font-weight: 500;
+        }
+
+        .system-time {
+            font-family: var(--font-mono);
+            font-size: 14px;
+            color: var(--text-muted);
+            background: rgba(255, 255, 255, 0.04);
+            padding: 8px 14px;
+            border-radius: 8px;
+            border: 1px solid var(--border-color);
+        }
+
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: 380px 1fr 380px;
+            gap: 24px;
+        }
+
+        @media (max-width: 1200px) {
+            .dashboard-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .dashboard-card {
+            background: var(--bg-surface);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            box-shadow: var(--shadow-lg);
+            display: flex;
+            flex-direction: column;
+            transition: all 0.3s ease;
+        }
+
+        .dashboard-card:hover {
+            border-color: var(--border-hover);
+            box-shadow: var(--shadow-glow), var(--shadow-lg);
+        }
+
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 16px 20px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .card-header h2 {
+            font-size: 16px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .card-header h2 i {
+            color: var(--primary);
+        }
+
+        .card-badge {
+            background: var(--primary-glow);
+            color: var(--primary);
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 11px;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        .gauges-container {
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .gauge-card {
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 16px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            transition: all 0.2s ease;
+        }
+
+        .gauge-card:hover {
+            background: rgba(255, 255, 255, 0.04);
+            transform: translateY(-2px);
+        }
+
+        .gauge-card.active-alert {
+            border-color: rgba(239, 68, 68, 0.5);
+            background: rgba(239, 68, 68, 0.05);
+            animation: flash-red 2s infinite ease-in-out;
+        }
+
+        .gauge-icon {
+            font-size: 20px;
+            width: 38px;
+            height: 38px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 8px;
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        #gauge-moisture .gauge-icon { color: #3b82f6; background: rgba(59, 130, 246, 0.1); }
+        #gauge-temperature .gauge-icon { color: #f59e0b; background: rgba(245, 158, 11, 0.1); }
+        #gauge-humidity .gauge-icon { color: #10b981; background: rgba(16, 185, 129, 0.1); }
+        #gauge-light .gauge-icon { color: #eab308; background: rgba(234, 179, 8, 0.1); }
+        #gauge-water .gauge-icon { color: #06b6d4; background: rgba(6, 182, 212, 0.1); }
+
+        .gauge-details {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .gauge-details h3 {
+            font-size: 13px;
+            color: var(--text-muted);
+            font-weight: 500;
+        }
+
+        .gauge-value {
+            font-size: 20px;
+            font-weight: 700;
+            font-family: var(--font-mono);
+        }
+
+        .progress-bar-container {
+            height: 6px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 3px;
+            overflow: hidden;
+        }
+
+        .progress-bar-fill {
+            height: 100%;
+            border-radius: 3px;
+            transition: width 0.5s ease-out;
+        }
+
+        #gauge-moisture .progress-bar-fill { background: #3b82f6; }
+        #gauge-temperature .progress-bar-fill { background: #f59e0b; }
+        #gauge-humidity .progress-bar-fill { background: #10b981; }
+        #gauge-light .progress-bar-fill { background: #eab308; }
+        #gauge-water .progress-bar-fill { background: #06b6d4; }
+
+        .chart-panel {
+            min-height: 480px;
+        }
+
+        .chart-wrapper {
+            flex: 1;
+            padding: 20px;
+            position: relative;
+            width: 100%;
+            height: 100%;
+        }
+
+        .pump-indicator-badge {
+            padding: 6px 12px;
+            border-radius: 8px;
+            font-size: 12px;
+            font-weight: 600;
+            border: 1px solid var(--border-color);
+            background: rgba(255, 255, 255, 0.04);
+        }
+
+        .pump-indicator-badge.pump-active {
+            background: var(--accent-glow);
+            color: var(--accent);
+            border-color: rgba(16, 185, 129, 0.4);
+            animation: flash-green 1.5s infinite ease-in-out;
+        }
+
+        .control-panel {
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 24px;
+        }
+
+        .control-section {
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 16px;
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .control-section h3 {
+            font-size: 13px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: var(--text-muted);
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .slider-group {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .slider-header {
+            display: flex;
+            justify-content: space-between;
+            font-size: 12px;
+            font-weight: 500;
+        }
+
+        .slider-val {
+            font-family: var(--font-mono);
+            color: var(--primary);
+            font-weight: 700;
+        }
+
+        .premium-slider, .sim-slider {
+            -webkit-appearance: none;
+            width: 100%;
+            height: 6px;
+            border-radius: 3px;
+            background: rgba(255, 255, 255, 0.1);
+            outline: none;
+        }
+
+        .premium-slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            background: var(--primary);
+            cursor: pointer;
+            box-shadow: 0 0 10px var(--primary);
+            transition: transform 0.1s ease;
+        }
+
+        .premium-slider::-webkit-slider-thumb:hover { transform: scale(1.25); }
+
+        .sim-slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            background: var(--warning);
+            cursor: pointer;
+            box-shadow: 0 0 10px var(--warning);
+        }
+
+        .sim-slider::-webkit-slider-thumb:hover { transform: scale(1.25); }
+
+        .toggle-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 13px;
+        }
+
+        .switch {
+            position: relative;
+            display: inline-block;
+            width: 44px;
+            height: 24px;
+        }
+
+        .switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(255, 255, 255, 0.1);
+            transition: .4s;
+            border: 1px solid var(--border-color);
+        }
+
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 16px;
+            width: 16px;
+            left: 3px;
+            bottom: 3px;
+            background-color: white;
+            transition: .4s;
+        }
+
+        input:checked + .slider {
+            background-color: var(--accent);
+            box-shadow: 0 0 10px var(--accent-glow);
+        }
+
+        input:checked + .slider:before {
+            transform: translateX(20px);
+        }
+
+        input:disabled + .slider {
+            opacity: 0.4;
+            cursor: not-allowed;
+        }
+
+        .slider.round { border-radius: 24px; }
+        .slider.round:before { border-radius: 50%; }
+
+        .btn-primary {
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 10px 16px;
+            border-radius: 8px;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            box-shadow: 0 4px 6px rgba(99, 102, 241, 0.2);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 6px 12px rgba(99, 102, 241, 0.35);
+        }
+
+        .btn-clear {
+            background: transparent;
+            color: var(--text-muted);
+            border: 1px solid var(--border-color);
+            padding: 6px 12px;
+            border-radius: 6px;
+            font-size: 11px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .btn-clear:hover {
+            color: var(--text-main);
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        .btn-clear.active {
+            background: var(--primary);
+            color: white;
+            border-color: var(--primary);
+            box-shadow: 0 0 8px var(--primary-glow);
+        }
+
+        .sim-section { border-color: rgba(245, 158, 11, 0.2); }
+        .sim-section h3 i { color: var(--warning) !important; }
+        .sim-note { font-size: 11px; color: var(--text-muted); }
+
+        .console-card {
+            background: var(--bg-surface);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            display: flex;
+            flex-direction: column;
+            box-shadow: var(--shadow-lg);
+            overflow: hidden;
+        }
+
+        .console-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 20px;
+            border-bottom: 1px solid var(--border-color);
+            background: rgba(255, 255, 255, 0.02);
+        }
+
+        .console-header h3 {
+            font-size: 13px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: var(--text-main);
+        }
+
+        .console-header h3 i { color: var(--accent); }
+
+        .console-body {
+            height: 180px;
+            padding: 16px;
+            overflow-y: auto;
+            font-family: var(--font-mono);
+            font-size: 12px;
+            line-height: 1.6;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            background: rgba(0, 0, 0, 0.2);
+        }
+
+        .console-line {
+            padding-bottom: 4px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.02);
+            display: flex;
+            gap: 8px;
+        }
+
+        .line-time { color: var(--text-dark); }
+        .tag {
+            font-weight: 600;
+            padding: 1px 6px;
+            border-radius: 3px;
+            font-size: 10px;
+            text-transform: uppercase;
+        }
+
+        .tag-info { background: rgba(59, 130, 246, 0.15); color: #3b82f6; }
+        .tag-warn { background: rgba(245, 158, 11, 0.15); color: #f59e0b; }
+        .tag-crit { background: rgba(239, 68, 68, 0.15); color: #ef4444; }
+        .tag-system { background: rgba(99, 102, 241, 0.15); color: #6366f1; }
+        .line-msg { color: var(--text-main); }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); opacity: 1; }
+            50% { transform: scale(1.05); opacity: 0.8; }
+        }
+
+        @keyframes flash-red {
+            0%, 100% { border-color: rgba(239, 68, 68, 0.3); }
+            50% { border-color: rgba(239, 68, 68, 0.8); box-shadow: 0 0 15px rgba(239, 68, 68, 0.3); }
+        }
+
+        @keyframes flash-green {
+            0%, 100% { box-shadow: 0 0 5px rgba(16, 185, 129, 0.2); }
+            50% { box-shadow: 0 0 15px rgba(16, 185, 129, 0.5); }
+        }
+    </style>
+</head>
+<body>
+    <div class="ambient-glow bg-glow-1"></div>
+    <div class="ambient-glow bg-glow-2"></div>
+
+    <div class="app-container">
+        <!-- HEADER -->
+        <header class="main-header">
+            <div class="header-logo">
+                <i class="fa-solid fa-leaf logo-icon"></i>
+                <div class="logo-text">
+                    <h1>AgriNexus <span class="accent-text">AI</span></h1>
+                    <span class="sub-logo">Planetary Precision Agriculture Gateway</span>
+                </div>
+            </div>
+            <div class="header-status">
+                <div class="status-indicator">
+                    <span class="status-dot online" id="connection-dot"></span>
+                    <span class="status-label" id="connection-label">Offline Demo Mode</span>
+                </div>
+                <div class="system-time" id="system-time">00:00:00</div>
+            </div>
+        </header>
+
+        <!-- MAIN LAYOUT -->
+        <main class="dashboard-grid">
+            
+            <!-- LEFT PANEL: TELEMETRY READOUTS -->
+            <section class="dashboard-card telemetry-panel">
+                <div class="card-header">
+                    <h2><i class="fa-solid fa-gauge-high"></i> Sensor Telemetry</h2>
+                    <span class="card-badge" id="telemetry-time">Live</span>
+                </div>
+                <div class="gauges-container">
+                    <!-- Soil Moisture -->
+                    <div class="gauge-card" id="gauge-moisture">
+                        <div class="gauge-icon"><i class="fa-solid fa-droplet"></i></div>
+                        <div class="gauge-details">
+                            <h3>Soil Moisture</h3>
+                            <div class="gauge-value"><span id="val-moisture">--</span>%</div>
+                        </div>
+                        <div class="progress-bar-container">
+                            <div class="progress-bar-fill" id="fill-moisture" style="width: 0%"></div>
+                        </div>
+                    </div>
+
+                    <!-- Temperature -->
+                    <div class="gauge-card" id="gauge-temperature">
+                        <div class="gauge-icon"><i class="fa-solid fa-temperature-half"></i></div>
+                        <div class="gauge-details">
+                            <h3>Ambient Temp</h3>
+                            <div class="gauge-value"><span id="val-temperature">--</span>°C</div>
+                        </div>
+                        <div class="progress-bar-container">
+                            <div class="progress-bar-fill" id="fill-temperature" style="width: 0%"></div>
+                        </div>
+                    </div>
+
+                    <!-- Humidity -->
+                    <div class="gauge-card" id="gauge-humidity">
+                        <div class="gauge-icon"><i class="fa-solid fa-wind"></i></div>
+                        <div class="gauge-details">
+                            <h3>Air Humidity</h3>
+                            <div class="gauge-value"><span id="val-humidity">--</span>%</div>
+                        </div>
+                        <div class="progress-bar-container">
+                            <div class="progress-bar-fill" id="fill-humidity" style="width: 0%"></div>
+                        </div>
+                    </div>
+
+                    <!-- Light Intensity -->
+                    <div class="gauge-card" id="gauge-light">
+                        <div class="gauge-icon"><i class="fa-solid fa-sun"></i></div>
+                        <div class="gauge-details">
+                            <h3>Solar Radiation</h3>
+                            <div class="gauge-value"><span id="val-light">--</span> Lux</div>
+                        </div>
+                        <div class="progress-bar-container">
+                            <div class="progress-bar-fill" id="fill-light" style="width: 0%"></div>
+                        </div>
+                    </div>
+
+                    <!-- Reservoir Water Level -->
+                    <div class="gauge-card" id="gauge-water">
+                        <div class="gauge-icon"><i class="fa-solid fa-water"></i></div>
+                        <div class="gauge-details">
+                            <h3>Reservoir Level</h3>
+                            <div class="gauge-value"><span id="val-water">--</span>%</div>
+                        </div>
+                        <div class="progress-bar-container">
+                            <div class="progress-bar-fill" id="fill-water" style="width: 0%"></div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- CENTER PANEL: TIMELINE CHART -->
+            <section class="dashboard-card chart-panel">
+                <div class="card-header">
+                    <h2><i class="fa-solid fa-chart-line"></i> Environmental Timelines</h2>
+                    <div class="view-toggles" style="display: flex; gap: 8px;">
+                        <button class="btn-clear active" id="btn-view-local">Local</button>
+                        <button class="btn-clear" id="btn-view-cloud">Cloud (ThingSpeak)</button>
+                    </div>
+                    <div class="pump-indicator-badge" id="pump-indicator">
+                        <i class="fa-solid fa-plug-circle-exclamation"></i> Pump: <span id="pump-status-label">OFF</span>
+                    </div>
+                </div>
+                <div class="chart-wrapper" style="position: relative;">
+                    <div id="local-chart-view" style="width: 100%; height: 100%;">
+                        <canvas id="telemetryChart"></canvas>
+                    </div>
+                    <div id="cloud-chart-view" style="display: none; width: 100%; height: 100%; overflow-y: auto;">
+                        <div class="thingspeak-grid" style="display: grid; grid-template-columns: 1fr; gap: 16px; padding: 10px 0;">
+                            <iframe width="100%" height="250" style="border: 1px solid var(--border-color); border-radius: 8px;" src="https://thingspeak.com/channels/757665/charts/1?bgcolor=%230d1121&color=%236366f1&dynamic=true&results=30&title=Temperature&type=line"></iframe>
+                            <iframe width="100%" height="250" style="border: 1px solid var(--border-color); border-radius: 8px;" src="https://thingspeak.com/channels/757665/charts/2?bgcolor=%230d1121&color=%2310b981&dynamic=true&results=30&title=Humidity&type=line"></iframe>
+                            <iframe width="100%" height="250" style="border: 1px solid var(--border-color); border-radius: 8px;" src="https://thingspeak.com/channels/757665/charts/3?bgcolor=%230d1121&color=%233b82f6&dynamic=true&results=30&title=Soil+Moisture&type=line"></iframe>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- RIGHT PANEL: CONTROL & SIMULATION PANEL -->
+            <section class="dashboard-card control-panel">
+                <div class="card-header">
+                    <h2><i class="fa-solid fa-sliders"></i> Edge Command & Simulator</h2>
+                </div>
+                
+                <!-- AUTO RULES TRIGGER SETTINGS -->
+                <div class="control-section">
+                    <h3><i class="fa-solid fa-gears"></i> Threshold Settings</h3>
+                    <div class="slider-group">
+                        <div class="slider-header">
+                            <label>Soil Irrigation Trigger</label>
+                            <span class="slider-val"><span id="lbl-soil-threshold">30</span>%</span>
+                        </div>
+                        <input type="range" id="input-soil-threshold" min="10" max="80" value="30" class="premium-slider">
+                    </div>
+                    <div class="slider-group">
+                        <div class="slider-header">
+                            <label>Water Safety Cutoff</label>
+                            <span class="slider-val"><span id="lbl-water-threshold">15</span>%</span>
+                        </div>
+                        <input type="range" id="input-water-threshold" min="5" max="40" value="15" class="premium-slider">
+                    </div>
+                    <button class="btn-primary" id="btn-save-thresholds">Apply Thresholds</button>
+                </div>
+
+                <!-- OPERATOR MANUAL OVERRIDES -->
+                <div class="control-section">
+                    <h3><i class="fa-solid fa-user-gear"></i> Manual Control</h3>
+                    <div class="toggle-container">
+                        <span>Automation Loop (Auto Mode)</span>
+                        <label class="switch">
+                            <input type="checkbox" id="toggle-auto" checked>
+                            <span class="slider round"></span>
+                        </label>
+                    </div>
+                    <div class="toggle-container">
+                        <span>Irrigation Pump Relay</span>
+                        <label class="switch">
+                            <input type="checkbox" id="toggle-pump" disabled>
+                            <span class="slider round"></span>
+                        </label>
+                    </div>
+                </div>
+
+                <!-- SIMULATED ENVIRONMENT SLIDERS -->
+                <div class="control-section sim-section">
+                    <h3><i class="fa-solid fa-flask"></i> Physics Simulator Overrides</h3>
+                    <p class="sim-note">Drag sliders to inject virtual agricultural anomalies:</p>
+                    
+                    <div class="slider-group">
+                        <div class="slider-header">
+                            <label>Force Soil Moisture</label>
+                            <span class="slider-val"><span id="lbl-sim-soil">--</span>%</span>
+                        </div>
+                        <input type="range" id="sim-soil" min="0" max="100" value="45" class="sim-slider">
+                    </div>
+
+                    <div class="slider-group">
+                        <div class="slider-header">
+                            <label>Force Temperature</label>
+                            <span class="slider-val"><span id="lbl-sim-temp">--</span>°C</span>
+                        </div>
+                        <input type="range" id="sim-temp" min="5" max="48" value="25" class="sim-slider">
+                    </div>
+
+                    <div class="slider-group">
+                        <div class="slider-header">
+                            <label>Force Reservoir Level</label>
+                            <span class="slider-val"><span id="lbl-sim-water">--</span>%</span>
+                        </div>
+                        <input type="range" id="sim-water" min="0" max="100" value="80" class="sim-slider">
+                    </div>
+
+                    <div class="slider-group">
+                        <div class="slider-header">
+                            <label>Force Solar Radiation</label>
+                            <span class="slider-val"><span id="lbl-sim-light">--</span> Lux</span>
+                        </div>
+                        <input type="range" id="sim-light" min="0" max="1500" value="500" class="sim-slider">
+                    </div>
+                </div>
+            </section>
+        </main>
+
+        <!-- FOOTER: ALERTS ENGINE -->
+        <footer class="console-card">
+            <div class="console-header">
+                <h3><i class="fa-solid fa-terminal"></i> Sovereign Alert Engine & Logs</h3>
+                <button class="btn-clear" id="btn-clear-logs">Clear Screen</button>
+            </div>
+            <div class="console-body" id="console-logs">
+                <div class="console-line system-line">[SYSTEM] 00:00:00 — System initialized. Standard standalone offline sandbox mode active.</div>
+            </div>
+        </footer>
+    </div>
+
+    <!-- Audio Elements for Alerts -->
+    <audio id="audio-alarm" src="https://assets.mixkit.co/active_storage/sfx/993/993-84.wav" preload="auto"></audio>
+    <audio id="audio-click" src="https://assets.mixkit.co/active_storage/sfx/2568/2568-84.wav" preload="auto"></audio>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", () => {
+            const connectionDot = document.getElementById("connection-dot");
+            const connectionLabel = document.getElementById("connection-label");
+            const systemTimeEl = document.getElementById("system-time");
+            
+            const valMoisture = document.getElementById("val-moisture");
+            const valTemperature = document.getElementById("val-temperature");
+            const valHumidity = document.getElementById("val-humidity");
+            const valLight = document.getElementById("val-light");
+            const valWater = document.getElementById("val-water");
+
+            const fillMoisture = document.getElementById("fill-moisture");
+            const fillTemperature = document.getElementById("fill-temperature");
+            const fillHumidity = document.getElementById("fill-humidity");
+            const fillLight = document.getElementById("fill-light");
+            const fillWater = document.getElementById("fill-water");
+
+            const gaugeMoistureCard = document.getElementById("gauge-moisture");
+            const gaugeWaterCard = document.getElementById("gauge-water");
+
+            const pumpIndicator = document.getElementById("pump-indicator");
+            const pumpStatusLabel = document.getElementById("pump-status-label");
+            const telemetryTime = document.getElementById("telemetry-time");
+            const consoleLogs = document.getElementById("console-logs");
+            const btnClearLogs = document.getElementById("btn-clear-logs");
+
+            const inputSoilThreshold = document.getElementById("input-soil-threshold");
+            const lblSoilThreshold = document.getElementById("lbl-soil-threshold");
+            const inputWaterThreshold = document.getElementById("input-water-threshold");
+            const lblWaterThreshold = document.getElementById("lbl-water-threshold");
+            const btnSaveThresholds = document.getElementById("btn-save-thresholds");
+
+            const toggleAuto = document.getElementById("toggle-auto");
+            const togglePump = document.getElementById("toggle-pump");
+
+            const simSoil = document.getElementById("sim-soil");
+            const lblSimSoil = document.getElementById("lbl-sim-soil");
+            const simTemp = document.getElementById("sim-temp");
+            const lblSimTemp = document.getElementById("lbl-sim-temp");
+            const simWater = document.getElementById("sim-water");
+            const lblSimWater = document.getElementById("lbl-sim-water");
+            const simLight = document.getElementById("sim-light");
+            const lblSimLight = document.getElementById("lbl-sim-light");
+
+            const audioAlarm = document.getElementById("audio-alarm");
+            const audioClick = document.getElementById("audio-click");
+
+            const btnViewLocal = document.getElementById("btn-view-local");
+            const btnViewCloud = document.getElementById("btn-view-cloud");
+            const localChartView = document.getElementById("local-chart-view");
+            const cloudChartView = document.getElementById("cloud-chart-view");
+
+            // Local Simulator State
+            let localState = {
+                soil_moisture: 45.0,
+                temperature: 24.5,
+                humidity: 60.0,
+                light: 500.0,
+                water_level: 80.0,
+                pump_on: false,
+                auto_mode: true,
+                soil_threshold: 30.0,
+                water_threshold: 15.0,
+                last_updated: ""
+            };
+
+            // Chart.js config with safety check
+            let telemetryChart = null;
+            const chartLabels = [];
+            const moistureData = [];
+            const temperatureData = [];
+            const waterLevelData = [];
+
+            if (typeof Chart !== 'undefined') {
+                try {
+                    const ctx = document.getElementById("telemetryChart").getContext("2d");
+                    telemetryChart = new Chart(ctx, {
+                        type: 'line',
+                        data: {
+                            labels: chartLabels,
+                            borderWidth: 2,
+                            datasets: [
+                                {
+                                    label: 'Soil Moisture (%)',
+                                    data: moistureData,
+                                    borderColor: '#3b82f6',
+                                    backgroundColor: 'rgba(59, 130, 246, 0.1)',
+                                    borderWidth: 2,
+                                    tension: 0.3,
+                                    fill: true,
+                                    yAxisID: 'y'
+                                },
+                                {
+                                    label: 'Temperature (°C)',
+                                    data: temperatureData,
+                                    borderColor: '#f59e0b',
+                                    backgroundColor: 'transparent',
+                                    borderWidth: 2,
+                                    tension: 0.3,
+                                    yAxisID: 'y1'
+                                },
+                                {
+                                    label: 'Water Reservoir (%)',
+                                    data: waterLevelData,
+                                    borderColor: '#06b6d4',
+                                    backgroundColor: 'transparent',
+                                    borderWidth: 2,
+                                    borderDash: [5, 5],
+                                    tension: 0.3,
+                                    yAxisID: 'y'
+                                }
+                            ]
+                        },
+                        options: {
+                            responsive: true,
+                            maintainAspectRatio: false,
+                            plugins: {
+                                legend: {
+                                    position: 'top',
+                                    labels: { color: '#f3f4f6', font: { family: 'Inter', size: 11 } }
+                                }
+                            },
+                            scales: {
+                                x: {
+                                    grid: { color: 'rgba(255, 255, 255, 0.03)' },
+                                    ticks: { color: '#9ca3af', font: { family: 'JetBrains Mono', size: 10 } }
+                                },
+                                y: {
+                                    type: 'linear',
+                                    display: true,
+                                    position: 'left',
+                                    min: 0,
+                                    max: 100,
+                                    grid: { color: 'rgba(255, 255, 255, 0.05)' },
+                                    ticks: { color: '#9ca3af' }
+                                },
+                                y1: {
+                                    type: 'linear',
+                                    display: true,
+                                    position: 'right',
+                                    min: 0,
+                                    max: 50,
+                                    grid: { drawOnChartArea: false },
+                                    ticks: { color: '#9ca3af' }
+                                }
+                            }
+                        }
+                    });
+                } catch (e) {
+                    console.error("Failed to initialize Chart.js: ", e);
+                }
+            } else {
+                console.warn("Chart.js CDN did not load. Running in headless mode.");
+            }
+
+            // Logger
+            function logEvent(tag, message, severity = "info") {
+                const timestamp = new Date().toTimeString().split(' ')[0];
+                const line = document.createElement("div");
+                line.className = "console-line";
+                
+                let tagClass = "tag-info";
+                if (severity === "warn") tagClass = "tag-warn";
+                if (severity === "crit") tagClass = "tag-crit";
+                if (severity === "system") tagClass = "tag-system";
+
+                line.innerHTML = `
+                    <span class="line-time">${timestamp}</span>
+                    <span class="tag ${tagClass}">${tag}</span>
+                    <span class="line-msg">${message}</span>
+                `;
+                
+                consoleLogs.appendChild(line);
+                consoleLogs.scrollTop = consoleLogs.scrollHeight;
+
+                if (severity === "crit") {
+                    audioAlarm.play().catch(e => {});
+                } else {
+                    audioClick.play().catch(e => {});
+                }
+            }
+
+            // Tabs
+            btnViewLocal.addEventListener("click", () => {
+                btnViewLocal.classList.add("active");
+                btnViewCloud.classList.remove("active");
+                localChartView.style.display = "block";
+                cloudChartView.style.display = "none";
+                logEvent("UI", "Switched display to Local Canvas timelines.", "info");
+            });
+
+            btnViewCloud.addEventListener("click", () => {
+                btnViewCloud.classList.add("active");
+                btnViewLocal.classList.remove("active");
+                localChartView.style.display = "none";
+                cloudChartView.style.display = "block";
+                logEvent("UI", "Switched display to Cloud ThingSpeak iframe widgets.", "info");
+            });
+
+            btnClearLogs.addEventListener("click", () => {
+                consoleLogs.innerHTML = "";
+                logEvent("CONSOLE", "Screen buffer cleared.", "system");
+            });
+
+            // Update UI loop
+            function updateDashboard(data) {
+                valMoisture.innerText = data.soil_moisture.toFixed(1);
+                valTemperature.innerText = data.temperature.toFixed(1);
+                valHumidity.innerText = data.humidity.toFixed(1);
+                valLight.innerText = Math.round(data.light);
+                valWater.innerText = data.water_level.toFixed(1);
+
+                fillMoisture.style.width = `${data.soil_moisture}%`;
+                fillTemperature.style.width = `${(data.temperature / 50) * 100}%`;
+                fillHumidity.style.width = `${data.humidity}%`;
+                fillLight.style.width = `${(data.light / 1500) * 100}%`;
+                fillWater.style.width = `${data.water_level}%`;
+
+                lblSoilThreshold.innerText = Math.round(data.soil_threshold);
+                lblWaterThreshold.innerText = Math.round(data.water_threshold);
+
+                if (data.soil_moisture < data.soil_threshold) {
+                    gaugeMoistureCard.classList.add("active-alert");
+                } else {
+                    gaugeMoistureCard.classList.remove("active-alert");
+                }
+
+                if (data.water_level < data.water_threshold) {
+                    gaugeWaterCard.classList.add("active-alert");
+                } else {
+                    gaugeWaterCard.classList.remove("active-alert");
+                }
+
+                if (data.pump_on) {
+                    pumpIndicator.classList.add("pump-active");
+                    pumpStatusLabel.innerText = "ACTIVE (Irrigating)";
+                    togglePump.checked = true;
+                } else {
+                    pumpIndicator.classList.remove("pump-active");
+                    pumpStatusLabel.innerText = "OFF";
+                    togglePump.checked = false;
+                }
+
+                toggleAuto.checked = data.auto_mode;
+                togglePump.disabled = data.auto_mode;
+
+                telemetryTime.innerText = `Sync: ${data.last_updated}`;
+                
+                // Update Chart if defined
+                if (typeof Chart !== 'undefined' && telemetryChart) {
+                    chartLabels.push(data.last_updated);
+                    moistureData.push(data.soil_moisture);
+                    temperatureData.push(data.temperature);
+                    waterLevelData.push(data.water_level);
+
+                    if (chartLabels.length > 20) {
+                        chartLabels.shift();
+                        moistureData.shift();
+                        temperatureData.shift();
+                        waterLevelData.shift();
+                    }
+                    try {
+                        telemetryChart.update();
+                    } catch (e) {
+                        console.error("Chart update failed: ", e);
+                    }
+                }
+            }
+
+            // Sync Sliders Initial Values
+            lblSimSoil.innerText = simSoil.value;
+            lblSimTemp.innerText = parseFloat(simTemp.value).toFixed(1);
+            lblSimWater.innerText = simWater.value;
+            lblSimLight.innerText = simLight.value;
+
+            // Clock Ticker
+            setInterval(() => {
+                const now = new Date();
+                systemTimeEl.innerText = now.toTimeString().split(' ')[0];
+            }, 1000);
+
+            // Simulation Engine
+            setInterval(() => {
+                if (localState.pump_on) {
+                    localState.soil_moisture = Math.min(100.0, localState.soil_moisture + 2.5);
+                    localState.water_level = Math.max(0.0, localState.water_level - 1.2);
+                    
+                    simSoil.value = Math.round(localState.soil_moisture);
+                    lblSimSoil.innerText = simSoil.value;
+                    simWater.value = Math.round(localState.water_level);
+                    lblSimWater.innerText = simWater.value;
+                } else {
+                    localState.soil_moisture = Math.max(0.0, localState.soil_moisture - 0.15);
+                    localState.water_level = Math.min(100.0, localState.water_level + 0.03);
+                    
+                    simSoil.value = Math.round(localState.soil_moisture);
+                    lblSimSoil.innerText = simSoil.value;
+                    simWater.value = Math.round(localState.water_level);
+                    lblSimWater.innerText = simWater.value;
+                }
+
+                // Random walks
+                localState.temperature = Math.max(10.0, Math.min(45.0, localState.temperature + (Math.random() - 0.5) * 0.1));
+                localState.humidity = Math.max(20.0, Math.min(95.0, localState.humidity + (Math.random() - 0.5) * 0.2));
+                
+                simTemp.value = localState.temperature;
+                lblSimTemp.innerText = localState.temperature.toFixed(1);
+
+                // Closed-loop control rules
+                if (localState.auto_mode) {
+                    if (localState.water_level < localState.water_threshold) {
+                        if (localState.pump_on) {
+                            localState.pump_on = false;
+                            logEvent("CRITICAL_ALARM", "Water level critically low! Automatic safety shutdown triggered.", "crit");
+                        }
+                    } else if (localState.soil_moisture < localState.soil_threshold) {
+                        if (!localState.pump_on) {
+                            localState.pump_on = true;
+                            logEvent("PUMP_ACTUATED", `Soil moisture fell below trigger (${localState.soil_threshold}%). Irrigation pump activated.`, "info");
+                        }
+                    } else if (localState.soil_moisture >= 55.0) {
+                        if (localState.pump_on) {
+                            localState.pump_on = false;
+                            logEvent("PUMP_DEACTIVATED", "Soil moisture saturated. Irrigation pump deactivated.", "info");
+                        }
+                    }
+                }
+
+                const now = new Date();
+                localState.last_updated = now.toTimeString().split(' ')[0];
+                updateDashboard(localState);
+            }, 1000);
+
+            // User Controls
+            btnSaveThresholds.addEventListener("click", () => {
+                const soilThresh = parseFloat(inputSoilThreshold.value);
+                const waterThresh = parseFloat(inputWaterThreshold.value);
+                localState.soil_threshold = soilThresh;
+                localState.water_threshold = waterThresh;
+                logEvent("SETTINGS", `Offline config applied: Soil Trigger = ${soilThresh}%, Cutoff = ${waterThresh}%.`, "info");
+            });
+
+            function handleOverride() {
+                const isAuto = toggleAuto.checked;
+                const isPumpOn = togglePump.checked;
+
+                localState.auto_mode = isAuto;
+                if (!localState.auto_mode) {
+                    if (isPumpOn && localState.water_level < localState.water_threshold) {
+                        logEvent("SAFETY_ALERT", "Cannot actuate pump: Water level is below safety cutoff.", "crit");
+                        togglePump.checked = false;
+                        return;
+                    }
+                    localState.pump_on = isPumpOn;
+                    const actStr = localState.pump_on ? "activated" : "deactivated";
+                    logEvent("MANUAL_OVERRIDE", `Control switched to manual. Pump ${actStr} by operator.`, "info");
+                } else {
+                    logEvent("AUTO_MODE_RESTORED", "Control switched back to automated threshold rules.", "system");
+                }
+            }
+
+            toggleAuto.addEventListener("change", () => {
+                togglePump.disabled = toggleAuto.checked;
+                handleOverride();
+            });
+
+            togglePump.addEventListener("change", handleOverride);
+
+            inputSoilThreshold.addEventListener("input", (e) => {
+                lblSoilThreshold.innerText = e.target.value;
+            });
+
+            inputWaterThreshold.addEventListener("input", (e) => {
+                lblWaterThreshold.innerText = e.target.value;
+            });
+
+            function injectTelemetry() {
+                const soil = parseFloat(simSoil.value);
+                const temp = parseFloat(simTemp.value);
+                const water = parseFloat(simWater.value);
+                const light = parseFloat(simLight.value);
+
+                lblSimSoil.innerText = soil;
+                lblSimTemp.innerText = temp.toFixed(1);
+                lblSimWater.innerText = water;
+                lblSimLight.innerText = Math.round(light);
+
+                localState.soil_moisture = soil;
+                localState.temperature = temp;
+                localState.water_level = water;
+                localState.light = light;
+                updateDashboard(localState);
+            }
+
+            simSoil.addEventListener("input", injectTelemetry);
+            simTemp.addEventListener("input", injectTelemetry);
+            simWater.addEventListener("input", injectTelemetry);
+            simLight.addEventListener("input", injectTelemetry);
+
+            logEvent("SYSTEM", "AgriNexus AI Standalone Sandbox Initialized. All physics running in-browser.", "system");
+        });
+    </script>
+</body>
+</html>

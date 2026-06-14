@@ -1,0 +1,657 @@
+/* ==========================================================================
+   AgriNexus Premium Glassmorphic Design System
+   ========================================================================== */
+
+:root {
+    --bg-base: #070913;
+    --bg-surface: rgba(13, 17, 33, 0.7);
+    --border-color: rgba(255, 255, 255, 0.08);
+    --border-hover: rgba(99, 102, 241, 0.3);
+    
+    --primary: #6366f1;
+    --primary-glow: rgba(99, 102, 241, 0.15);
+    --accent: #10b981;
+    --accent-glow: rgba(16, 185, 129, 0.15);
+    --warning: #f59e0b;
+    --danger: #ef4444;
+    
+    --text-main: #f3f4f6;
+    --text-muted: #9ca3af;
+    --text-dark: #4b5563;
+    
+    --font-sans: 'Inter', sans-serif;
+    --font-mono: 'JetBrains Mono', monospace;
+    
+    --shadow-sm: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+    --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.3), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+    --shadow-glow: 0 0 20px rgba(99, 102, 241, 0.2);
+}
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    background-color: var(--bg-base);
+    color: var(--text-main);
+    font-family: var(--font-sans);
+    min-height: 100vh;
+    overflow-x: hidden;
+    position: relative;
+    padding: 24px;
+}
+
+/* Ambient Background Glares */
+.ambient-glow {
+    position: absolute;
+    border-radius: 50%;
+    filter: blur(140px);
+    z-index: -1;
+    opacity: 0.25;
+    pointer-events: none;
+}
+
+.bg-glow-1 {
+    width: 450px;
+    height: 450px;
+    background: var(--primary);
+    top: -10%;
+    right: -10%;
+}
+
+.bg-glow-2 {
+    width: 600px;
+    height: 600px;
+    background: var(--accent);
+    bottom: -15%;
+    left: -10%;
+}
+
+/* App Container */
+.app-container {
+    max-width: 1600px;
+    margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+}
+
+/* Header */
+.main-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px 24px;
+    background: var(--bg-surface);
+    border: 1px solid var(--border-color);
+    border-radius: 16px;
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    box-shadow: var(--shadow-sm);
+}
+
+.header-logo {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+}
+
+.logo-icon {
+    font-size: 32px;
+    color: var(--accent);
+    filter: drop-shadow(0 0 8px var(--accent-glow));
+    animation: pulse 3s infinite ease-in-out;
+}
+
+.logo-text h1 {
+    font-size: 24px;
+    font-weight: 700;
+    letter-spacing: -0.5px;
+}
+
+.accent-text {
+    color: var(--primary);
+    text-shadow: 0 0 10px var(--primary-glow);
+}
+
+.sub-logo {
+    font-size: 11px;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+}
+
+.header-status {
+    display: flex;
+    align-items: center;
+    gap: 24px;
+}
+
+.status-indicator {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    background: rgba(255, 255, 255, 0.04);
+    padding: 8px 14px;
+    border-radius: 20px;
+    border: 1px solid var(--border-color);
+}
+
+.status-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    position: relative;
+}
+
+.status-dot.online {
+    background-color: var(--accent);
+    box-shadow: 0 0 10px var(--accent);
+}
+
+.status-dot.offline {
+    background-color: var(--danger);
+    box-shadow: 0 0 10px var(--danger);
+}
+
+.status-label {
+    font-size: 13px;
+    font-weight: 500;
+}
+
+.system-time {
+    font-family: var(--font-mono);
+    font-size: 14px;
+    color: var(--text-muted);
+    background: rgba(255, 255, 255, 0.04);
+    padding: 8px 14px;
+    border-radius: 8px;
+    border: 1px solid var(--border-color);
+}
+
+/* Dashboard Grid Layout */
+.dashboard-grid {
+    display: grid;
+    grid-template-columns: 380px 1fr 380px;
+    gap: 24px;
+}
+
+@media (max-width: 1200px) {
+    .dashboard-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* Dashboard Card Base */
+.dashboard-card {
+    background: var(--bg-surface);
+    border: 1px solid var(--border-color);
+    border-radius: 16px;
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    box-shadow: var(--shadow-lg);
+    display: flex;
+    flex-direction: column;
+    transition: all 0.3s ease;
+}
+
+.dashboard-card:hover {
+    border-color: var(--border-hover);
+    box-shadow: var(--shadow-glow), var(--shadow-lg);
+}
+
+.card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 16px 20px;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.card-header h2 {
+    font-size: 16px;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.card-header h2 i {
+    color: var(--primary);
+}
+
+.card-badge {
+    background: var(--primary-glow);
+    color: var(--primary);
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+}
+
+/* Left Panel: Gauges List */
+.gauges-container {
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.gauge-card {
+    background: rgba(255, 255, 255, 0.02);
+    border: 1px solid var(--border-color);
+    border-radius: 12px;
+    padding: 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    transition: all 0.2s ease;
+}
+
+.gauge-card:hover {
+    background: rgba(255, 255, 255, 0.04);
+    transform: translateY(-2px);
+}
+
+.gauge-card.active-alert {
+    border-color: rgba(239, 68, 68, 0.5);
+    background: rgba(239, 68, 68, 0.05);
+    animation: flash-red 2s infinite ease-in-out;
+}
+
+.gauge-icon {
+    font-size: 20px;
+    width: 38px;
+    height: 38px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 8px;
+    background: rgba(255, 255, 255, 0.05);
+}
+
+#gauge-moisture .gauge-icon { color: #3b82f6; background: rgba(59, 130, 246, 0.1); }
+#gauge-temperature .gauge-icon { color: #f59e0b; background: rgba(245, 158, 11, 0.1); }
+#gauge-humidity .gauge-icon { color: #10b981; background: rgba(16, 185, 129, 0.1); }
+#gauge-light .gauge-icon { color: #eab308; background: rgba(234, 179, 8, 0.1); }
+#gauge-water .gauge-icon { color: #06b6d4; background: rgba(6, 182, 212, 0.1); }
+
+.gauge-details {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.gauge-details h3 {
+    font-size: 13px;
+    color: var(--text-muted);
+    font-weight: 500;
+}
+
+.gauge-value {
+    font-size: 20px;
+    font-weight: 700;
+    font-family: var(--font-mono);
+}
+
+.progress-bar-container {
+    height: 6px;
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 3px;
+    overflow: hidden;
+}
+
+.progress-bar-fill {
+    height: 100%;
+    border-radius: 3px;
+    transition: width 0.5s ease-out;
+}
+
+#gauge-moisture .progress-bar-fill { background: #3b82f6; }
+#gauge-temperature .progress-bar-fill { background: #f59e0b; }
+#gauge-humidity .progress-bar-fill { background: #10b981; }
+#gauge-light .progress-bar-fill { background: #eab308; }
+#gauge-water .progress-bar-fill { background: #06b6d4; }
+
+/* Center Panel: Chart */
+.chart-panel {
+    min-height: 480px;
+}
+
+.chart-wrapper {
+    flex: 1;
+    padding: 20px;
+    position: relative;
+    width: 100%;
+    height: 100%;
+}
+
+.pump-indicator-badge {
+    padding: 6px 12px;
+    border-radius: 8px;
+    font-size: 12px;
+    font-weight: 600;
+    border: 1px solid var(--border-color);
+    background: rgba(255, 255, 255, 0.04);
+}
+
+.pump-indicator-badge.pump-active {
+    background: var(--accent-glow);
+    color: var(--accent);
+    border-color: rgba(16, 185, 129, 0.4);
+    animation: flash-green 1.5s infinite ease-in-out;
+}
+
+/* Right Panel: Control panel styles */
+.control-panel {
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+}
+
+.control-section {
+    background: rgba(255, 255, 255, 0.02);
+    border: 1px solid var(--border-color);
+    border-radius: 12px;
+    padding: 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.control-section h3 {
+    font-size: 13px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: var(--text-muted);
+    border-bottom: 1px solid var(--border-color);
+    padding-bottom: 8px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.slider-group {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.slider-header {
+    display: flex;
+    justify-content: space-between;
+    font-size: 12px;
+    font-weight: 500;
+}
+
+.slider-val {
+    font-family: var(--font-mono);
+    color: var(--primary);
+    font-weight: 700;
+}
+
+/* Range Inputs */
+.premium-slider, .sim-slider {
+    -webkit-appearance: none;
+    width: 100%;
+    height: 6px;
+    border-radius: 3px;
+    background: rgba(255, 255, 255, 0.1);
+    outline: none;
+}
+
+.premium-slider::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    background: var(--primary);
+    cursor: pointer;
+    box-shadow: 0 0 10px var(--primary);
+    transition: transform 0.1s ease;
+}
+
+.premium-slider::-webkit-slider-thumb:hover {
+    transform: scale(1.25);
+}
+
+.sim-slider::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    background: var(--warning);
+    cursor: pointer;
+    box-shadow: 0 0 10px var(--warning);
+}
+
+.sim-slider::-webkit-slider-thumb:hover {
+    transform: scale(1.25);
+}
+
+/* Toggles / Switches */
+.toggle-container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 13px;
+}
+
+.switch {
+    position: relative;
+    display: inline-block;
+    width: 44px;
+    height: 24px;
+}
+
+.switch input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+
+.slider {
+    position: absolute;
+    cursor: pointer;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(255, 255, 255, 0.1);
+    transition: .4s;
+    border: 1px solid var(--border-color);
+}
+
+.slider:before {
+    position: absolute;
+    content: "";
+    height: 16px;
+    width: 16px;
+    left: 3px;
+    bottom: 3px;
+    background-color: white;
+    transition: .4s;
+}
+
+input:checked + .slider {
+    background-color: var(--accent);
+    box-shadow: 0 0 10px var(--accent-glow);
+}
+
+input:checked + .slider:before {
+    transform: translateX(20px);
+}
+
+input:disabled + .slider {
+    opacity: 0.4;
+    cursor: not-allowed;
+}
+
+.slider.round {
+    border-radius: 24px;
+}
+
+.slider.round:before {
+    border-radius: 50%;
+}
+
+/* Buttons */
+.btn-primary {
+    background: var(--primary);
+    color: white;
+    border: none;
+    padding: 10px 16px;
+    border-radius: 8px;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    box-shadow: 0 4px 6px rgba(99, 102, 241, 0.2);
+}
+
+.btn-primary:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 6px 12px rgba(99, 102, 241, 0.35);
+}
+
+.btn-primary:active {
+    transform: translateY(1px);
+}
+
+.btn-clear {
+    background: transparent;
+    color: var(--text-muted);
+    border: 1px solid var(--border-color);
+    padding: 6px 12px;
+    border-radius: 6px;
+    font-size: 11px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.btn-clear:hover {
+    color: var(--text-main);
+    background: rgba(255, 255, 255, 0.05);
+}
+
+.btn-clear.active {
+    background: var(--primary);
+    color: white;
+    border-color: var(--primary);
+    box-shadow: 0 0 8px var(--primary-glow);
+}
+
+/* Physics Simulation Custom overrides */
+.sim-section {
+    border-color: rgba(245, 158, 11, 0.2);
+}
+.sim-section h3 i {
+    color: var(--warning) !important;
+}
+.sim-note {
+    font-size: 11px;
+    color: var(--text-muted);
+}
+
+/* Footer: Console Alerts Logger */
+.console-card {
+    background: var(--bg-surface);
+    border: 1px solid var(--border-color);
+    border-radius: 16px;
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    display: flex;
+    flex-direction: column;
+    box-shadow: var(--shadow-lg);
+    overflow: hidden;
+}
+
+.console-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 20px;
+    border-bottom: 1px solid var(--border-color);
+    background: rgba(255, 255, 255, 0.02);
+}
+
+.console-header h3 {
+    font-size: 13px;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: var(--text-main);
+}
+
+.console-header h3 i {
+    color: var(--accent);
+}
+
+.console-body {
+    height: 180px;
+    padding: 16px;
+    overflow-y: auto;
+    font-family: var(--font-mono);
+    font-size: 12px;
+    line-height: 1.6;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    background: rgba(0, 0, 0, 0.2);
+}
+
+.console-line {
+    padding-bottom: 4px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.02);
+    display: flex;
+    gap: 8px;
+}
+
+.line-time {
+    color: var(--text-dark);
+}
+
+.tag {
+    font-weight: 600;
+    padding: 1px 6px;
+    border-radius: 3px;
+    font-size: 10px;
+    text-transform: uppercase;
+}
+
+.tag-info { background: rgba(59, 130, 246, 0.15); color: #3b82f6; }
+.tag-warn { background: rgba(245, 158, 11, 0.15); color: #f59e0b; }
+.tag-crit { background: rgba(239, 68, 68, 0.15); color: #ef4444; animation: flash-red-bg 1s infinite alternate; }
+.tag-system { background: rgba(99, 102, 241, 0.15); color: #6366f1; }
+
+.line-msg {
+    color: var(--text-main);
+}
+
+/* Animations */
+@keyframes pulse {
+    0%, 100% { transform: scale(1); opacity: 1; }
+    50% { transform: scale(1.05); opacity: 0.8; }
+}
+
+@keyframes flash-red {
+    0%, 100% { border-color: rgba(239, 68, 68, 0.3); }
+    50% { border-color: rgba(239, 68, 68, 0.8); box-shadow: 0 0 15px rgba(239, 68, 68, 0.3); }
+}
+
+@keyframes flash-red-bg {
+    0% { background: rgba(239, 68, 68, 0.1); }
+    100% { background: rgba(239, 68, 68, 0.3); }
+}
+
+@keyframes flash-green {
+    0%, 100% { box-shadow: 0 0 5px rgba(16, 185, 129, 0.2); }
+    50% { box-shadow: 0 0 15px rgba(16, 185, 129, 0.5); }
+}

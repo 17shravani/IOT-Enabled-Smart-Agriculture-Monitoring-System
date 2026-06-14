@@ -1,0 +1,32 @@
+{
+  "version": 1,
+  "author": "AgriNexus AI Architect",
+  "editor": "wokwi",
+  "parts": [
+    { "type": "board-esp32-devkitc-v4", "id": "esp", "top": 0, "left": 0, "attrs": {} },
+    { "type": "wokwi-dht22", "id": "dht", "top": -150, "left": -120, "attrs": {} },
+    { "type": "wokwi-photoresistor-sensor", "id": "ldr", "top": -150, "left": 120, "attrs": {} },
+    { "type": "wokwi-hc-sr04", "id": "ultrasonic", "top": -260, "left": 0, "attrs": {} },
+    { "type": "wokwi-led", "id": "led_pump", "top": 150, "left": 0, "attrs": { "color": "green", "label": "Irrigation Pump" } },
+    { "type": "wokwi-resistor", "id": "r1", "top": 190, "left": -40, "attrs": { "value": "220" } }
+  ],
+  "connections": [
+    [ "esp:GND.1", "dht:GND", "black", [ "h-20" ] ],
+    [ "esp:3V3", "dht:VCC", "red", [ "h-20" ] ],
+    [ "esp:IO4", "dht:SDA", "blue", [ "h-20" ] ],
+
+    [ "esp:GND.1", "ldr:GND", "black", [ "h-20" ] ],
+    [ "esp:3V3", "ldr:VCC", "red", [ "h-20" ] ],
+    [ "esp:IO35", "ldr:AO", "orange", [ "h-20" ] ],
+
+    [ "esp:GND.1", "ultrasonic:GND", "black", [ "h-20" ] ],
+    [ "esp:5V", "ultrasonic:VCC", "red", [ "h-20" ] ],
+    [ "esp:IO12", "ultrasonic:TRIG", "purple", [ "h-20" ] ],
+    [ "esp:IO13", "ultrasonic:ECHO", "blue", [ "h-20" ] ],
+
+    [ "esp:IO25", "r1:1", "green", [] ],
+    [ "r1:2", "led_pump:A", "green", [] ],
+    [ "esp:GND.2", "led_pump:C", "black", [] ]
+  ],
+  "dependencies": {}
+}
