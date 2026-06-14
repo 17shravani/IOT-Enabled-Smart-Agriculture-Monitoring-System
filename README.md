@@ -1,4 +1,5 @@
 # IoT-Enabled Smart Agriculture Monitoring System (AgriNexus AI)
+<img width="1017" height="755" alt="Screenshot 2026-06-14 143841" src="https://github.com/user-attachments/assets/65ab24da-88b5-4538-82e9-5627b095c575" />
 
 [![Platform Version](https://img.shields.io/badge/AgriNexus--AI-v1.0.0-indigo.svg?style=flat-square)](https://github.com/)
 [![License](https://img.shields.io/badge/License-MIT-emerald.svg?style=flat-square)](LICENSE)
